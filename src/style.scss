@@ -1,0 +1,72 @@
+/* ============================================
+   KINA SAQINA - Global Design System (SCSS)
+   ============================================ */
+
+// ── Design Tokens ──
+$yellow:        #FFD600;
+$yellow-dark:   #E6C200;
+$black:         #111111;
+$dark:          #1a1a1a;
+$white:         #FFFFFF;
+$gray-light:    #f5f5f5;
+$gray-mid:      #888888;
+$teal:          #00CED1;
+$text-dark:     #1a1a1a;
+$text-body:     #444444;
+$tag-bg:        #2a2a2a;
+$accent-red:    #E8456B;
+
+$font-en:   'Outfit', 'Inter', system-ui, sans-serif;
+$font-cn:   'Noto Sans SC', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+$font-mono: 'SF Mono', 'Consolas', monospace;
+
+// ── CSS Custom Properties (for runtime access) ──
+:root {
+  --yellow: #{$yellow};
+  --yellow-dark: #{$yellow-dark};
+  --black: #{$black};
+  --dark: #{$dark};
+  --white: #{$white};
+  --gray-light: #{$gray-light};
+  --gray-mid: #{$gray-mid};
+  --teal: #{$teal};
+  --text-dark: #{$text-dark};
+  --text-body: #{$text-body};
+  --tag-bg: #{$tag-bg};
+  --accent-red: #{$accent-red};
+
+  --font-en: #{$font-en};
+  --font-cn: #{$font-cn};
+  --font-mono: #{$font-mono};
+}
+
+// ── Reset ──
+*,
+*::before,
+*::after {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  font-size: 16px;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  overflow-x: hidden;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  background: $white;
+  color: $text-dark;
+  font-family: $font-cn;
+  overflow-x: hidden;
+}
+
+#app {
+  width: 100%;
+  min-height: 100vh;
+}

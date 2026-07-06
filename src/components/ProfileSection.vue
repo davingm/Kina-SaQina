@@ -1,56 +1,117 @@
 <script setup lang="ts">
-// Profile Section — Character name, tags, description, 3D model area
+// 个人资料区 — 角色名称、标签、描述、3D 模型区域
+import { onMounted, ref } from 'vue'
+import { gsap } from 'gsap'
+
+const iconWrapRef = ref<HTMLElement | null>(null)
+const nameRef     = ref<HTMLElement | null>(null)
+
+onMounted(() => {
+  // ── 1. 图标：如时钟指针般揭示（顺时针擦除，via clip-path）
+  //
+  // 原理：使用 conic-gradient 作为 CSS mask 遮罩，模拟时钟扫描效果。
+  // 从 7 点方向（210°）开始，顺时针扫过 360°，逐步显现图标。
+
+  const iconEl = iconWrapRef.value
+  if (iconEl) {
+    // 初始状态：遮罩完全覆盖（显示角度为 0°）
+    const obj = { angle: 0 }
+
+    // 设置初始 mask：全部遮盖
+    // conic-gradient：white = 显现区域，transparent = 遮盖区域
+    // 从 7 点方向（210°）开始，初始扫过宽度为 0
+    const updateMask = (angleDeg: number) => {
+      const start = 210
+      if (angleDeg >= 360) {
+        // 完全显现 — 移除 mask
+        iconEl.style.webkitMaskImage = 'none'
+        iconEl.style.maskImage       = 'none'
+      } else {
+        const mask = `conic-gradient(from ${start}deg, white 0deg ${angleDeg}deg, transparent ${angleDeg}deg 360deg)`
+        iconEl.style.webkitMaskImage = mask
+        iconEl.style.maskImage       = mask
+      }
+    }
+
+    updateMask(0)
+
+    gsap.to(obj, {
+      angle: 360,
+      duration: 1.2,
+      ease: 'power2.inOut',
+      delay: 0.15,
+      onUpdate() { updateMask(obj.angle) },
+    })
+  }
+
+  // ── 2. 括号展开：[] → [  ] → [井ノ上 瀧奈]
+  //
+  // 策略：将名称包裹在 width: 0、overflow: hidden 的容器中。
+  // 左右括号位置不变 — 名称容器从 width 0 展开至自然宽度，
+  // 视觉上如同括号被"撑开"。名称本身同步淡入。
+
+  const nameEl = nameRef.value
+  if (nameEl) {
+    // 先测量名称的自然宽度，再从 0 开始动画
+    const naturalWidth = nameEl.scrollWidth
+    gsap.set(nameEl, { width: 0, opacity: 0, overflow: 'hidden', whiteSpace: 'nowrap' })
+
+    gsap.timeline({ delay: 0.4 })
+      .to(nameEl, {
+        width: naturalWidth,
+        duration: 0.85,
+        ease: 'power3.inOut',
+      })
+      .to(nameEl, {
+        opacity: 1,
+        duration: 0.45,
+        ease: 'power2.out',
+      }, '-=0.65') // 括号刚开始展开时名称开始淡入
+  }
+})
 </script>
 
 <template>
   <section class="profile" id="profile-section">
     <div class="profile__left">
-      <!-- Character Name -->
+      <!-- 角色名称 -->
       <div class="profile__name-row">
-        <div class="berry-accent">
-          <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
-            <circle cx="14" cy="8" r="3.5" fill="#E8456B"/>
-            <circle cx="8" cy="14" r="3.5" fill="#E8456B"/>
-            <circle cx="20" cy="14" r="3.5" fill="#E8456B"/>
-            <circle cx="11" cy="20" r="3.5" fill="#E8456B"/>
-            <circle cx="17" cy="20" r="3.5" fill="#E8456B"/>
-            <line x1="14" y1="2" x2="14" y2="0" stroke="#4CAF50" stroke-width="2"/>
-            <path d="M12 3 Q14 0 16 3" fill="#4CAF50"/>
-          </svg>
+        <div class="berry-accent" ref="iconWrapRef">
+          <img src="/ryco.ico" alt="Lycoris Recoil" />
         </div>
         <span class="bracket bracket--lg">[</span>
-        <h1 class="profile__name">绮娜·萨琪娜</h1>
+        <h1 class="profile__name" ref="nameRef">井ノ上 瀧奈</h1>
         <span class="bracket bracket--lg">]</span>
       </div>
 
-      <!-- Tags Grid -->
+      <!-- 标签网格 -->
       <div class="tags">
         <div class="tags__row">
           <div class="tag-group">
-            <span class="tag-label">阵营</span>
-            <span class="tag-value">北理工网协</span>
+            <span class="tag-label">作者</span>
+            <span class="tag-value">Kin · davingm</span>
           </div>
           <div class="tag-group">
             <span class="tag-label">种族</span>
-            <span class="tag-value">技术·数据</span>
+            <span class="tag-value">人类·特工</span>
           </div>
         </div>
         <div class="tags__row">
           <div class="tag-group">
-            <span class="tag-label">中文</span>
-            <span class="tag-value">来自北方的乐</span>
+            <span class="tag-label">日文</span>
+            <span class="tag-value">井ノ上 瀧奈</span>
           </div>
           <div class="tag-group">
             <span class="tag-label">英文</span>
-            <span class="tag-value">来自北方的乐</span>
+            <span class="tag-value">Inoue Takina</span>
           </div>
         </div>
       </div>
 
-      <!-- Teal Accent Line -->
+      <!-- 青色强调线 -->
       <div class="teal-line"></div>
 
-      <!-- Description -->
+      <!-- 角色描述 -->
       <div class="profile__desc">
         <p>
           绮娜醒来时，发现自己又一次卡在同一个控制面板里。
@@ -81,10 +142,10 @@
       </div>
     </div>
 
-    <!-- Right Side (3D Model Area) -->
+    <!-- 右侧（3D 模型区域）-->
     <div class="profile__right">
       <div class="model-placeholder">
-        <!-- 3D model area — will be powered by Three.js -->
+        <!-- 3D 模型区域 — 将由 Three.js 驱动 -->
       </div>
       <button class="btn-3d" id="btn-3d-toggle" aria-label="Toggle 3D View">
         <span class="btn-3d__icon">3D</span>
@@ -120,8 +181,9 @@
   &__name-row {
     display: flex;
     align-items: center;
-    gap: 10px;
+    gap: 0;          // 括号紧贴；名称展开时自然产生间距
     margin-bottom: 20px;
+    overflow: hidden; // 防止展开动画期间溢出
   }
 
   &__name {
@@ -132,6 +194,9 @@
     color: var(--dark);
     margin: 0;
     line-height: 1.2;
+    display: inline-block; // 宽度可动画化所必需
+    overflow: hidden;
+    white-space: nowrap;
   }
 
   &__desc {
@@ -160,6 +225,20 @@
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
+  // mask 将通过 JS 设置，固定尺寸确保 conic-gradient 效果整齐
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;  // 裁剪为圆形区域，使扫描效果呈圆弧状
+  will-change: mask;
+
+  img {
+    display: block;
+    width: 28px;
+    height: 28px;
+    object-fit: contain;
+    pointer-events: none;
+    user-select: none;
+  }
 }
 
 .bracket {
@@ -167,6 +246,7 @@
   font-weight: 300;
   font-size: 18px;
   color: var(--dark);
+  flex-shrink: 0;
 
   &--lg {
     font-size: 32px;
@@ -174,7 +254,7 @@
   }
 }
 
-// ── Tags ──
+// ── 标签 ──
 .tags {
   display: flex;
   flex-direction: column;
@@ -220,7 +300,7 @@
   white-space: nowrap;
 }
 
-// ── Teal Line & Details ──
+// ── 青色线条与细节 ──
 .teal-line {
   width: 100%;
   height: 2px;
@@ -236,7 +316,7 @@
   font-weight: 600;
 }
 
-// ── 3D Button ──
+// ── 3D 按钮 ──
 .model-placeholder {
   width: 100%;
   height: 100%;
@@ -275,7 +355,7 @@
   }
 }
 
-// ── Responsive ──
+// ── 响应式 ──
 @media (max-width: 900px) {
   .profile {
     flex-direction: column;
